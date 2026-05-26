@@ -1,0 +1,25 @@
+name: ExpensiveModelForSimpleTask
+category: AI/Cost
+severity: info
+files: "app/ai/**/*.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 512
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line: { type: integer }
+        message: { type: string }
+prompt: |
+  Analyze this AI agent. If the task is simple (classification, yes/no,
+  extraction, formatting) but uses a large/expensive model (opus, gpt-4,
+  claude-3-opus), flag it. Simple tasks should use smaller models
+  (haiku, gpt-4o-mini, claude-3-haiku).
+
+  Source:
+  {{source}}
