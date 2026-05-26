@@ -3,6 +3,7 @@ PATH
   specs:
     backpressure (0.1.0)
       ostruct
+      parser (~> 3.3)
       rubocop-ast (~> 1.30)
 
 GEM

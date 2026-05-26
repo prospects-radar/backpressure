@@ -87,4 +87,58 @@ RSpec.describe Backpressure::Runner do
       expect(result.success?).to be false
     end
   end
+
+  describe "context building" do
+    let(:phlex_check) do
+      Class.new(Backpressure::Check) do
+        files "**/*.rb"
+        requires :phlex
+        def self.name; "PhlexCheck"; end
+        def check(context)
+          skip("No tree") unless context.tree
+        end
+      end
+    end
+
+    let(:project_check) do
+      Class.new(Backpressure::Check) do
+        files "**/*.rb"
+        requires :source, :project
+        def self.name; "ProjectCheck"; end
+        def check(context)
+          skip("No index") unless context.respond_to?(:project_index)
+        end
+      end
+    end
+
+    it "builds PhlexContext for checks requiring :phlex" do
+      registry = Backpressure::CheckRegistry.new
+      registry.register(phlex_check)
+      runner = described_class.new(config: config, registry: registry)
+
+      tmpfile = Tempfile.new(["test", ".rb"])
+      tmpfile.write("class C < Phlex::HTML; def view_template; div; end; end")
+      tmpfile.close
+
+      result = runner.run(files: [tmpfile.path])
+      expect(result.skipped).to be_empty
+    ensure
+      tmpfile.unlink
+    end
+
+    it "injects project_index for checks requiring :project" do
+      registry = Backpressure::CheckRegistry.new
+      registry.register(project_check)
+      runner = described_class.new(config: config, registry: registry)
+
+      tmpfile = Tempfile.new(["test", ".rb"])
+      tmpfile.write("class Foo; end")
+      tmpfile.close
+
+      result = runner.run(files: [tmpfile.path])
+      expect(result.skipped).to be_empty
+    ensure
+      tmpfile.unlink
+    end
+  end
 end

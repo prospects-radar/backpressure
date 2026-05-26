@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.executables = ["backpressure"]
 
   spec.add_dependency "rubocop-ast", "~> 1.30"
+  spec.add_dependency "parser", "~> 3.3"
   spec.add_dependency "ostruct"
 
   spec.metadata["rubygems_mfa_required"] = "true"
