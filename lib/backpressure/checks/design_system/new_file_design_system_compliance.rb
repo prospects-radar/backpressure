@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "raw_html_ratchet"
+
 module Backpressure
   module Checks
     module DesignSystem
