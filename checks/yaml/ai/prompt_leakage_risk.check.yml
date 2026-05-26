@@ -1,0 +1,28 @@
+name: PromptLeakageRisk
+category: AI/PromptSafety
+severity: warning
+files: "app/ai/**/*.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 1024
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line: { type: integer }
+        message: { type: string }
+prompt: |
+  Check this AI agent/prompt for information leakage risks.
+
+  Flag prompts that expose:
+  - Internal tool names or class names to the model
+  - Database schema details
+  - Internal API endpoints or architecture
+  - System role descriptions that could be extracted by users
+
+  Source:
+  {{source}}

@@ -1,0 +1,30 @@
+name: PromptInjectionSurface
+category: AI/PromptSafety
+severity: error
+files: "app/ai/**/*.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 1024
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line: { type: integer }
+        message: { type: string }
+prompt: |
+  Analyze this RAAF agent/prompt file for prompt injection vulnerabilities.
+
+  Check if:
+  - User input appears BEFORE system constraints (allows override)
+  - String interpolation injects unescaped user data into system prompts
+  - The prompt lacks instruction hierarchy (system > user boundary)
+  - User-controlled content could close/reopen instruction blocks
+
+  Only report findings where injection is structurally possible.
+
+  Source:
+  {{source}}

@@ -1,0 +1,29 @@
+name: PIIInSystemPrompt
+category: AI/PromptSafety
+severity: error
+files: "app/ai/**/*.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 1024
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line: { type: integer }
+        message: { type: string }
+prompt: |
+  Scan this AI agent/prompt file for hardcoded PII or secrets.
+
+  Flag: email addresses, names, phone numbers, API keys, tokens,
+  internal URLs (not example.com), passwords, or database credentials
+  embedded directly in prompt strings.
+
+  Do NOT flag: template variables, environment variable references,
+  or configuration lookups.
+
+  Source:
+  {{source}}
