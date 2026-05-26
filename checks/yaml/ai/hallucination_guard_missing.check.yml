@@ -1,0 +1,27 @@
+name: HallucinationGuardMissing
+category: AI/OutputSafety
+severity: warning
+files: "app/ai/**/*.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 1024
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line: { type: integer }
+        message: { type: string }
+prompt: |
+  Analyze this AI agent for hallucination guard gaps.
+
+  Flag if the agent returns IDs, URLs, entity names, or database
+  references but the code does not validate that referenced objects
+  actually exist (e.g., no find_by, exists?, or similar lookup after
+  the AI call).
+
+  Source:
+  {{source}}

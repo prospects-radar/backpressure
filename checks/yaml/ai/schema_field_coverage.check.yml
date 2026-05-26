@@ -1,0 +1,29 @@
+name: SchemaFieldCoverage
+category: AI/OutputSafety
+severity: warning
+files: "app/ai/**/*.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 1024
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line: { type: integer }
+        message: { type: string }
+prompt: |
+  Compare the output schema definition with the system/user prompt.
+
+  Flag fields declared in the schema that the prompt never mentions
+  or asks the model to produce. The model may hallucinate values for
+  schema fields it was never instructed about.
+
+  Also flag if the prompt asks for information not captured by any
+  schema field.
+
+  Source:
+  {{source}}
