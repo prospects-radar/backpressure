@@ -71,7 +71,7 @@ module Backpressure
       config = load_config
       registry = Backpressure.registry
 
-      config.check_paths.each { |path| registry.load_from(path) if Dir.exist?(path) }
+      load_checks(config, registry)
 
       case @options[:command]
       when :check then run_check(config, registry)
@@ -86,6 +86,26 @@ module Backpressure
     end
 
     private
+
+    def gem_root
+      File.expand_path("../..", __dir__)
+    end
+
+    def load_checks(config, registry)
+      bundled_checks = File.join(gem_root, "lib", "backpressure", "checks")
+      registry.load_from(bundled_checks) if Dir.exist?(bundled_checks)
+
+      bundled_yaml = File.join(gem_root, "checks", "yaml")
+      if Dir.exist?(bundled_yaml)
+        YamlLoader.load_all(bundled_yaml).each { |c| registry.register(c) }
+      end
+
+      config.check_paths.each do |path|
+        next unless Dir.exist?(path)
+        registry.load_from(path)
+        YamlLoader.load_all(path).each { |c| registry.register(c) } if Dir.glob(File.join(path, "**/*.check.yml")).any?
+      end
+    end
 
     def load_config
       config_path = "backpressure.yml"

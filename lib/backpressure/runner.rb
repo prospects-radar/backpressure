@@ -26,7 +26,8 @@ module Backpressure
 
       files.each do |file_path|
         checks = resolve_checks(file_path, only: only)
-        source = File.read(file_path)
+        source = File.read(file_path, encoding: "utf-8")
+        next unless source.valid_encoding?
 
         checks.each do |check_class|
           context = build_context(check_class, source: source, file_path: file_path)

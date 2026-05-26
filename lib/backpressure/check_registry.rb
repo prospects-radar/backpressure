@@ -31,7 +31,7 @@ module Backpressure
         checks_before = check_descendants
         require file
         new_checks = check_descendants - checks_before
-        new_checks.each { |c| register(c) }
+        new_checks.reject { |c| c == Backpressure::AiCheck }.each { |c| register(c) }
       end
     end
 
