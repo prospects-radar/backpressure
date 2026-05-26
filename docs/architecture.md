@@ -54,51 +54,48 @@ This document describes the internal architecture of the Backpressure gem: its l
 
 ## High-Level Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Entry Points                                                   │
-│  ┌──────────────┐   ┌──────────────────┐   ┌────────────────┐  │
-│  │     CLI      │   │  Programmatic    │   │  RuboCop Cop   │  │
-│  │ backpressure │   │  Runner.new.run  │   │  (compiled)    │  │
-│  └──────┬───────┘   └────────┬─────────┘   └───────┬────────┘  │
-│         └──────────────┬─────┘                     │            │
-│                        ▼                           │            │
-│  ┌─────────────────────────────────────────────┐   │            │
-│  │               Runner                        │   │            │
-│  │  file discovery → context build → check     │   │            │
-│  │  execution → cache → ratchet → format       │   │            │
-│  └──┬───────────────────────────────────────┬──┘   │            │
-│     │                                       │      │            │
-│     ▼                                       ▼      │            │
-│  ┌──────────────┐                    ┌────────────────────────┐ │
-│  │ CheckRegistry│                    │ Context subsystem      │ │
-│  │  Check ×N   │                    │  Source / AST /        │ │
-│  │  AiCheck ×N │                    │  Group / Project       │ │
-│  └──────┬───────┘                    └───────────┬────────────┘ │
-│         │                                        │              │
-│         ▼                                        ▼              │
-│  ┌─────────────┐   ┌────────────────┐   ┌──────────────────┐   │
-│  │  Violation  │   │    Ratchet     │   │   ProjectIndex   │   │
-│  │  Correction │   │    Baseline    │   │ (class catalog)  │   │
-│  └──────┬──────┘   └────────────────┘   └──────────────────┘   │
-│         │                                                        │
-│         ▼                                                        │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │  AI Layer                                               │    │
-│  │  Provider → Strategy (PreFilter / Consensus / …)        │    │
-│  │  Cache (content-hash keyed, disk-backed)                │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                  │
-│  ┌──────────────────────────────────────────────────────────┐   │
-│  │  Plugin system   PluginDSL (checks_from / formatter /    │   │
-│  │                  context)                                │   │
-│  └──────────────────────────────────────────────────────────┘   │
-│                                                                  │
-│  ┌────────────────────────┐   ┌───────────────────────────┐     │
-│  │  Formatters            │   │  RubocopCompiler          │     │
-│  │  Pretty / JSON / …     │   │  (generates .rb cop file) │     │
-│  └────────────────────────┘   └───────────────────────────┘     │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph EP["Entry Points"]
+        CLI["CLI\n<i>backpressure</i>"]
+        Prog["Programmatic\n<i>Runner.new.run</i>"]
+        RCop["RuboCop Cop\n<i>compiled</i>"]
+    end
+
+    subgraph Core["Core Engine"]
+        Runner["Runner\nfile discovery · context build\ncheck execution · cache · ratchet · format"]
+        CheckReg["CheckRegistry\nCheck ×N · AiCheck ×N"]
+        CtxSys["Context Subsystem\nSource / AST / Group / Project"]
+    end
+
+    subgraph Output["Output & Infrastructure"]
+        Formatters["Formatters\nPretty / JSON / …"]
+        RubocopCompiler["RubocopCompiler\ngenerates .rb cop file"]
+        PluginSys["Plugin System\nPluginDSL\nchecks_from · formatter · context"]
+    end
+
+    subgraph Analysis["Analysis Outputs"]
+        Violation["Violation\nCorrection"]
+        Ratchet["Ratchet\nBaseline"]
+        ProjIdx["ProjectIndex\nclass catalog"]
+    end
+
+    subgraph AIL["AI Layer"]
+        AILayer["Provider\nStrategy: PreFilter / Consensus / …\nCache: content-hash · disk-backed"]
+    end
+
+    CLI --> Runner
+    Prog --> Runner
+    RCop -.->|uses| CtxSys
+
+    Runner --> CheckReg
+    Runner --> CtxSys
+    Runner --> Ratchet
+    Runner --> Formatters
+
+    CheckReg --> Violation
+    CtxSys --> ProjIdx
+    Violation --> AILayer
 ```
 
 ---
@@ -116,17 +113,20 @@ Responsibilities:
 - Provide `check_enabled?(name)` for per-check overrides.
 - Expose `ai_config`, `cache_config`, `ratchet_config`, `include_patterns`, `exclude_patterns`.
 
-```
-Configuration
-  ├─ check_paths: Array<String>
-  ├─ include_patterns: Array<String>
-  ├─ exclude_patterns: Array<String>
-  ├─ format: Symbol
-  ├─ ai_config: Hash
-  ├─ cache_config: {enabled:, dir:}
-  ├─ ratchet_config: {baseline_file:, anti_tamper:}
-  ├─ checks: Hash (per-check overrides)
-  └─ plugins: Array<String>
+```mermaid
+classDiagram
+    class Configuration {
+        +check_paths : Array~String~
+        +include_patterns : Array~String~
+        +exclude_patterns : Array~String~
+        +format : Symbol
+        +ai_config : Hash
+        +cache_config : Hash
+        +ratchet_config : Hash
+        +checks : Hash
+        +plugins : Array~String~
+        +check_enabled?(name) Boolean
+    }
 ```
 
 ### CheckRegistry
@@ -386,19 +386,32 @@ Formatters are resolved by name (`:pretty`, `:json`) from the formatter registry
 
 ### AI Layer
 
-```
-AI::Provider (abstract)
-  ├─ .register(name, klass)     → registry
-  ├─ .for(name, config:)        → klass.new(config: config)
-  └─ #complete(prompt:, model:, temperature:, max_tokens:, schema:)
-       → Array<Hash>  # [{line:, message:}, ...]
+```mermaid
+classDiagram
+    class Provider {
+        <<abstract>>
+        +register(name, klass)$
+        +for(name, config)$ Provider
+        +complete(prompt, model, temperature, max_tokens, schema) Array~Hash~
+    }
 
-AI::Strategies::PreFilter
-  └─ #should_run?(source) → Boolean
+    class ConcreteProvider {
+        +complete(prompt, model, temperature, max_tokens, schema) Array~Hash~
+    }
 
-AI::Strategies::Consensus
-  └─ #evaluate { |index| [...violations...] }
-       → Array<Hash with :agreed and :votes>
+    class PreFilter {
+        -pattern : Regexp
+        +should_run?(source) Boolean
+    }
+
+    class Consensus {
+        -count : Integer
+        +evaluate() Array~Hash~
+    }
+
+    Provider <|-- ConcreteProvider
+    Provider ..> PreFilter : used with
+    Provider ..> Consensus : used with
 ```
 
 Strategy composition is manual: check authors call strategies inside their `check` method. The YAML loader wires strategies from the `ai.strategy` key.
@@ -497,59 +510,39 @@ Exit codes:
 
 ## Data Flow: A Full Run
 
-```
-backpressure check app/
-        │
-        ▼
-CLI parses options
-        │
-        ▼
-Configuration.load("backpressure.yml")
-        │
-        ▼
-Plugins activated (require each plugin)
-        │
-        ▼
-CheckRegistry.load_paths(config.check_paths)
-  ├─ require "checks/no_direct_http_check.rb"   → Check subclass auto-registered
-  └─ YamlLoader.load("checks/prompt.check.yml") → AiCheck subclass registered
-        │
-        ▼
-Runner.run
-  ├─ files = resolve_files(include_patterns, exclude_patterns)
-  │
-  ├─ For each file "app/services/webhook_service.rb":
-  │    ├─ applicable_checks = CheckRegistry.for_file(file) ∩ enabled checks
-  │    │
-  │    ├─ source_ctx = SourceContext.from_file(file)   ← built once
-  │    ├─ ast_ctx    = AstContext.from_file(file)      ← built lazily if needed
-  │    │
-  │    ├─ NoDirectHttpCheck.new.run(source_ctx)
-  │    │    └─ [Violation(line:14, ...)]
-  │    │
-  │    └─ PromptClarityCheck.new.run(ast_ctx)
-  │         ├─ render prompt
-  │         ├─ cache.fetch → nil (miss)
-  │         ├─ provider.complete(prompt) → [{line:5, message:"..."}]
-  │         ├─ cache.store
-  │         └─ [Violation(line:5, ...)]
-  │
-  ├─ all_violations = [...].sort
-  │
-  ├─ Filter disable-annotated lines
-  │
-  ├─ ratchet.evaluate(all_violations)
-  │    ├─ baseline.load("backpressure_baseline.yml")
-  │    ├─ new_violations = violations - baseline
-  │    └─ tampered = false
-  │
-  └─ Result{violations: new_violations, skipped: 0}
-        │
-        ▼
-Formatters::Pretty.format(result.violations)
-        │
-        ▼
-stdout + exit(result.violations.any? ? 1 : 0)
+```mermaid
+flowchart TD
+    A([backpressure check app/]) --> B[CLI parses options]
+    B --> C[Configuration.load backpressure.yml]
+    C --> D[Plugins activated]
+    D --> E[CheckRegistry.load_paths]
+    E --> E1["require *.rb → Check subclass registered"]
+    E --> E2["YamlLoader.load *.check.yml → AiCheck subclass registered"]
+    E1 & E2 --> F[Runner.run]
+    F --> G[resolve_files from include/exclude patterns]
+    G --> H{For each file}
+
+    H --> I[Select applicable checks\nfor_file + check_enabled?]
+    I --> J[Build SourceContext / AstContext\nlazy — one per type per file]
+
+    J --> K["Deterministic check.run(ctx)\n→ Violations"]
+
+    J --> L[AI check.run]
+    L --> M{Cache hit?}
+    M -- Yes --> N[Return cached violations]
+    M -- No --> O[provider.complete prompt]
+    O --> P[cache.store]
+    P --> Q["interpret results → Violations"]
+    N --> Q
+
+    K & Q --> R[Sort all violations by file/line/col]
+    R --> S["Filter backpressure:disable annotations"]
+    S --> T[ratchet.evaluate]
+    T --> T1[baseline.load]
+    T1 --> T2["new_violations = current − baseline\ntampered = baseline inflated?"]
+    T2 --> U["Result{violations, skipped}"]
+    U --> V["Formatters::Pretty.format(violations)"]
+    V --> W([stdout + exit 0 or 1])
 ```
 
 ---
@@ -572,30 +565,41 @@ stdout + exit(result.violations.any? ? 1 : 0)
 
 ## Dependency Graph
 
-```
-CLI
- └─ Configuration
- └─ Runner
-      ├─ CheckRegistry
-      │    ├─ Check (×N)
-      │    └─ AiCheck (×N)
-      │         ├─ AI::Provider (abstract)
-      │         └─ AI::Strategies::*
-      ├─ Contexts::SourceContext
-      ├─ Contexts::AstContext       → rubocop-ast
-      ├─ Contexts::GroupContext
-      ├─ Contexts::ProjectContext
-      │    └─ ProjectIndex          → rubocop-ast
-      ├─ Cache
-      ├─ Ratchet
-      │    └─ Baseline
-      └─ Formatters::*
-           ├─ Formatters::Pretty
-           └─ Formatters::Json
+```mermaid
+graph TD
+    CLI --> Configuration
+    CLI --> Runner
 
-YamlLoader → AiCheck (anonymous subclass)
-PluginDSL  → CheckRegistry, FormatterRegistry, ContextRegistry
-RubocopCompiler → AstContext, Check
+    Runner --> CheckRegistry
+    Runner --> SourceContext["Contexts::SourceContext"]
+    Runner --> AstContext["Contexts::AstContext"]
+    Runner --> GroupContext["Contexts::GroupContext"]
+    Runner --> ProjectContext["Contexts::ProjectContext"]
+    Runner --> Cache
+    Runner --> Ratchet
+    Runner --> Formatters["Formatters::*"]
+
+    CheckRegistry --> Check["Check ×N"]
+    CheckRegistry --> AiCheck["AiCheck ×N"]
+
+    AiCheck --> AIProvider["AI::Provider\n(abstract)"]
+    AiCheck --> AIStrat["AI::Strategies::*"]
+
+    AstContext --> rubocop_ast([rubocop-ast])
+    ProjectContext --> ProjectIndex
+    ProjectIndex --> rubocop_ast
+
+    Ratchet --> Baseline
+
+    Formatters --> Pretty["Formatters::Pretty"]
+    Formatters --> Json["Formatters::Json"]
+
+    YamlLoader([YamlLoader]) --> AiCheck
+    PluginDSL([PluginDSL]) --> CheckRegistry
+    PluginDSL --> FormatterRegistry["FormatterRegistry"]
+    PluginDSL --> ContextRegistry["ContextRegistry"]
+    RubocopCompiler([RubocopCompiler]) --> AstContext
+    RubocopCompiler --> Check
 ```
 
 External dependencies:
