@@ -1,0 +1,36 @@
+name: AIInventedPatterns
+category: DesignSystem
+severity: warning
+files: "app/{views,components}/glass_morph/**/*.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 1024
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line:
+          type: integer
+        message:
+          type: string
+prompt: |
+  You are a GlassMorph design system auditor.
+
+  Review this Phlex component for raw HTML that should use a design system
+  component instead. Look for:
+  - Any raw HTML element (div, span, p, a, button, input, etc.)
+    with styling classes that replicate what an atom/molecule does
+  - Inline styles that a component parameter handles
+  - Bootstrap utility class combinations an atom wraps
+  - Custom CSS classes that duplicate component functionality
+  - Any HTML structure that looks like it reinvents a component
+
+  Only flag HIGH and MEDIUM confidence findings.
+  Do NOT flag: plain text, simple yield blocks, or elements with no styling.
+
+  Source:
+  {{source}}
