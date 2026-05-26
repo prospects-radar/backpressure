@@ -22,7 +22,8 @@ module Backpressure
             next unless File.exist?(file)
 
             source = File.read(file)
-            source.match?(/#{component_name}\s*[\(].*\bdo\b/m) || source.match?(/#{component_name}\s*\{/)
+            escaped = Regexp.escape(component_name)
+            source.match?(/#{escaped}\s*[\(].*\bdo\b/m) || source.match?(/#{escaped}\s*\{/)
           end
 
           return if has_block_caller

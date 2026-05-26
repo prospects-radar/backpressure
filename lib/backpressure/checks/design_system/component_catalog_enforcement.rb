@@ -33,7 +33,7 @@ module Backpressure
           catalog = {}
           atom_glob = "app/components/glass_morph/{atoms,molecules}/**/*.rb"
           index.classes_in(atom_glob).each do |entry|
-            component_name = entry.name
+            component_name = entry.name.split("::").last
             html_equiv = component_name.gsub(/([a-z])([A-Z])/, '\1_\2').downcase
             catalog[html_equiv] = component_name
           end

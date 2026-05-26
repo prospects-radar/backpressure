@@ -57,7 +57,7 @@ module Backpressure
 
     def render_prompt(context)
       template = self.class.prompt_text || ""
-      template.gsub("{{source}}", context.source)
+      template.sub("{{source}}") { context.source }
     end
   end
 end
