@@ -20,11 +20,17 @@ module Backpressure
   autoload :PluginDSL, "backpressure/plugin"
   autoload :CLI, "backpressure/cli"
 
+  module Phlex
+    autoload :PhlexNode, "backpressure/phlex/phlex_node"
+    autoload :Parser, "backpressure/phlex/parser"
+  end
+
   module Contexts
     autoload :AstContext, "backpressure/contexts/ast_context"
     autoload :SourceContext, "backpressure/contexts/source_context"
     autoload :GroupContext, "backpressure/contexts/group_context"
     autoload :ProjectContext, "backpressure/contexts/project_context"
+    autoload :PhlexContext, "backpressure/contexts/phlex_context"
   end
 
   module Corrections

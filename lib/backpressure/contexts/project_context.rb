@@ -11,7 +11,19 @@ module Backpressure
       end
 
       def source
-        File.read(file_path)
+        @source ||= File.read(file_path)
+      end
+
+      def lines
+        @lines ||= source.split("\n", -1)
+      end
+
+      def line_count
+        lines.reject(&:empty?).size
+      end
+
+      def line(number)
+        lines[number - 1]
       end
     end
   end

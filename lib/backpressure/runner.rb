@@ -12,14 +12,17 @@ module Backpressure
       end
     end
 
-    def initialize(config:, registry:)
+    def initialize(config:, registry:, project_index: nil)
       @config = config
       @registry = registry
+      @project_index = project_index
     end
 
     def run(files:, only: nil)
       all_violations = []
       all_skipped = []
+
+      build_project_index(files) if needs_project_index?(only)
 
       files.each do |file_path|
         checks = resolve_checks(file_path, only: only)
@@ -53,11 +56,27 @@ module Backpressure
 
     def build_context(check_class, source:, file_path:)
       contexts = check_class.required_contexts
-      if contexts.include?(:ast)
-        Contexts::AstContext.new(source: source, file_path: file_path)
-      else
-        Contexts::SourceContext.new(source: source, file_path: file_path)
-      end
+      ctx = if contexts.include?(:phlex)
+              Contexts::PhlexContext.new(source: source, file_path: file_path)
+            elsif contexts.include?(:ast)
+              Contexts::AstContext.new(source: source, file_path: file_path)
+            else
+              Contexts::SourceContext.new(source: source, file_path: file_path)
+            end
+      ctx.instance_variable_set(:@project_index, @project_index) if contexts.include?(:project)
+      ctx.define_singleton_method(:project_index) { @project_index } if contexts.include?(:project)
+      ctx
+    end
+
+    def needs_project_index?(only)
+      checks = only ? @registry.all.select { |c| only.include?(c.check_name) } : @registry.all
+      checks.any? { |c| c.required_contexts.include?(:project) }
+    end
+
+    def build_project_index(files)
+      return if @project_index
+
+      @project_index = ProjectIndex.build(files)
     end
 
     def filter_skip_annotations(violations, source)
