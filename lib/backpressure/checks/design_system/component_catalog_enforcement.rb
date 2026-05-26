@@ -8,6 +8,7 @@ module Backpressure
         severity :error
         files "app/{views,components}/glass_morph/**/*.rb"
         requires :phlex, :project
+        description "Flags raw HTML when a matching design system component exists"
 
         def check(context)
           skip("No view_template found") unless context.tree

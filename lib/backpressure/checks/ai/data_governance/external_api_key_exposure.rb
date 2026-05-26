@@ -9,6 +9,7 @@ module Backpressure
           severity :error
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags hardcoded API keys instead of ENV or credentials"
 
           KEY_PATTERN = /api[_-]?key|secret[_-]?key|access[_-]?token|bearer/i
           ENV_PATTERN = /ENV\[|Rails\.application\.credentials/

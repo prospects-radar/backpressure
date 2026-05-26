@@ -9,6 +9,7 @@ module Backpressure
           severity :info
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags deterministic AI calls (temperature 0) without caching"
 
           def check(context)
             return unless context.source.match?(/temperature:\s*0(?!\.\d)/)

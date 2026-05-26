@@ -8,6 +8,7 @@ module Backpressure
         severity :warning
         files "app/components/glass_morph/**/*.rb"
         requires :source, :project
+        description "Flags GlassMorph components with no external references"
 
         def check(context)
           index = context.project_index

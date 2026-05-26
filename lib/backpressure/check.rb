@@ -19,6 +19,18 @@ module Backpressure
         @check_category || (superclass.respond_to?(:check_category) ? superclass.check_category : nil)
       end
 
+      def description(value = nil)
+        if value
+          @check_description = value
+        else
+          @check_description
+        end
+      end
+
+      def check_description
+        @check_description || (superclass.respond_to?(:check_description) ? superclass.check_description : nil)
+      end
+
       def severity(value = nil)
         if value
           @check_severity = value

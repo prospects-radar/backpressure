@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/agents/**/*.rb"
           requires :source, :project
+          description "Flags RAAF agent classes with no corresponding spec file"
 
           def check(context)
             agent_file = context.file_path

@@ -9,6 +9,7 @@ module Backpressure
           severity :error
           files "app/{controllers,services}/**/*.rb"
           requires :ast
+          description "Flags agent .run calls without .success? validation"
 
           def check(context)
             return unless context.ast

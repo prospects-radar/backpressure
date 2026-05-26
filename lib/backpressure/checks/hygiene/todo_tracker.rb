@@ -9,6 +9,7 @@ module Backpressure
         files "**/*.rb"
         requires :source
         ratchet :strict
+        description "Tracks TODO, FIXME, and HACK comments for ratcheted removal"
 
         PATTERN = /\b(TODO|FIXME|HACK)\b/i
 

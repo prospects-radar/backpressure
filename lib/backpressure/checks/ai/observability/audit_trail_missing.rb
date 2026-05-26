@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags DB mutations in AI code without audit trail logging"
 
           MUTATION_PATTERN = /\.save!?|\.update!?|\.create!?|\.destroy!?|\.delete/
 

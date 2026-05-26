@@ -8,6 +8,7 @@ module Backpressure
         severity :info
         files "app/{views,components}/glass_morph/**/*.rb"
         requires :phlex, :project
+        description "AI check for duplicated component patterns across views"
 
         ai_config(
           provider: :test,

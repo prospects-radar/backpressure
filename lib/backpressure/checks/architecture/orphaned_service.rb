@@ -8,6 +8,7 @@ module Backpressure
         severity :warning
         files "app/services/**/*.rb"
         requires :source, :project
+        description "Flags service classes with no external references"
 
         def check(context)
           index = context.project_index

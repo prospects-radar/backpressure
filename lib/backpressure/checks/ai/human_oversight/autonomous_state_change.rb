@@ -9,6 +9,7 @@ module Backpressure
           severity :error
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags state mutations without human approval gates"
 
           STATE_CHANGE = /\.update!?\(.*status|\.transition_to|state_machine|\.save!/
 

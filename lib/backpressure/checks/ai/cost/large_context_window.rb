@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags File.read injected into AI prompts without truncation"
 
           def check(context)
             return unless context.source.match?(/\.read\b|File\.read|\.body\b/)

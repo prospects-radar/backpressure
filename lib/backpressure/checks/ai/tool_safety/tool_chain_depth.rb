@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags RAAF pipelines exceeding maximum operator depth"
 
           MAX_DEPTH = 5
 

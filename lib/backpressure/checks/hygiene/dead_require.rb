@@ -8,6 +8,7 @@ module Backpressure
         severity :warning
         files "**/*.rb"
         requires :source, :project
+        description "Flags require_relative pointing to nonexistent files"
 
         REQUIRE_RELATIVE_PATTERN = /^\s*require_relative\s+["']([^"']+)["']/
 

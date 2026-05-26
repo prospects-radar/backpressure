@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/prompts/**/*.rb"
           requires :source, :project
+          description "Flags prompt template files with no corresponding spec"
 
           def check(context)
             prompt_file = context.file_path

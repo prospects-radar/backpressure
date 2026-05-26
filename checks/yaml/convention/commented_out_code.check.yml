@@ -1,4 +1,5 @@
 name: CommentedOutCode
+description: AI check for blocks of commented-out Ruby code
 category: Convention
 severity: warning
 files: "**/*.rb"

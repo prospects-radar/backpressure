@@ -8,6 +8,7 @@ module Backpressure
         severity :error
         files "app/services/**/*.rb"
         requires :ast, :project
+        description "Detects bidirectional call cycles between service classes"
 
         def check(context)
           index = context.project_index

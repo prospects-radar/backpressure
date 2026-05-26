@@ -1,4 +1,5 @@
 name: NoEdgeCaseTests
+description: AI check for agent specs missing error/timeout/malformed-output cases
 category: AI/Testing
 severity: info
 files: "spec/ai/**/*_spec.rb"

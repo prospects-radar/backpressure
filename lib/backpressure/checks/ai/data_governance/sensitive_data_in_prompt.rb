@@ -9,6 +9,7 @@ module Backpressure
           severity :error
           files "app/ai/**/*.rb"
           requires :source
+          description "AI check for PII or credentials passed into prompts"
 
           ai_config(provider: :test, temperature: 0, max_tokens: 512,
             schema: { type: "array", items: { type: "object",

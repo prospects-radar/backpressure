@@ -9,6 +9,7 @@ module Backpressure
         files "app/{views,components}/glass_morph/**/*.rb"
         requires :source
         ratchet :strict
+        description "Ratchets raw HTML elements in GlassMorph Phlex views"
 
         RAW_ELEMENTS = %w[
           div span p a button input textarea select label

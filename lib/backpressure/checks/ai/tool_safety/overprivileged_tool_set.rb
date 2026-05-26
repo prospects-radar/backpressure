@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/agents/**/*.rb"
           requires :source
+          description "AI check for agents registered with excessive tool permissions"
 
           ai_config(provider: :test, temperature: 0, max_tokens: 512,
             schema: { type: "array", items: { type: "object",

@@ -1,4 +1,5 @@
 name: PromptLeakageRisk
+description: AI check for prompts that expose internal architecture to the model
 category: AI/PromptSafety
 severity: warning
 files: "app/ai/**/*.rb"

@@ -1,4 +1,5 @@
 name: ExpensiveModelForSimpleTask
+description: AI check for large models used on simple classification or extraction tasks
 category: AI/Cost
 severity: info
 files: "app/ai/**/*.rb"

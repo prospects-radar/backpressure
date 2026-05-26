@@ -1,4 +1,5 @@
 name: PromptInjectionSurface
+description: AI check for structural prompt injection vulnerabilities
 category: AI/PromptSafety
 severity: error
 files: "app/ai/**/*.rb"

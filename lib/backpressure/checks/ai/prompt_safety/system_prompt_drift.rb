@@ -9,6 +9,7 @@ module Backpressure
           severity :info
           files "app/ai/**/*.rb"
           requires :source, :project
+          description "AI check for system prompt changes that weaken safety constraints"
 
           ai_config(
             provider: :test,

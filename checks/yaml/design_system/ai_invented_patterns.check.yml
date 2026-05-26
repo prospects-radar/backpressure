@@ -1,4 +1,5 @@
 name: AIInventedPatterns
+description: AI check for raw HTML that reinvents an existing design system component
 category: DesignSystem
 severity: warning
 files: "app/{views,components}/glass_morph/**/*.rb"

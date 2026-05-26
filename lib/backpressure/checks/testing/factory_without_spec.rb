@@ -8,6 +8,7 @@ module Backpressure
         severity :info
         files "spec/factories/**/*.rb"
         requires :source, :project
+        description "Flags FactoryBot factories not referenced in any spec file"
 
         FACTORY_PATTERN = /factory\s+:(\w+)/
 

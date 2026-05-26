@@ -9,6 +9,7 @@ module Backpressure
           severity :error
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags destructive tool operations without confirmation gates"
 
           DESTRUCTIVE = /delete|destroy|remove|send_email|send_notification|transfer|publish/i
 

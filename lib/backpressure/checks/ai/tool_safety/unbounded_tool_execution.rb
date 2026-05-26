@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags tool registrations without timeout constraints"
 
           def check(context)
             return unless context.source.match?(/build_tool|register_tool|def execute/)

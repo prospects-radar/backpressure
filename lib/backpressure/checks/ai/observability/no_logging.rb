@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags AI agent files with no logging calls"
 
           def check(context)
             return if context.source.match?(/RAAF\.logger|Rails\.logger|logger\./)

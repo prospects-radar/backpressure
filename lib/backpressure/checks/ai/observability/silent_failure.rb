@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags rescue blocks that swallow errors without logging"
 
           def check(context)
             context.lines.each_with_index do |line, idx|

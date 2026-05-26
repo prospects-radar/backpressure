@@ -9,6 +9,7 @@ module Backpressure
           severity :error
           files "app/{views,components}/**/*.rb"
           requires :source
+          description "Flags raw() and html_safe on potentially AI-generated content"
 
           RAW_OUTPUT_PATTERN = /raw\s*\(|html_safe|==\s/
 

@@ -8,6 +8,7 @@ module Backpressure
         severity :warning
         files "app/{views,components}/glass_morph/**/*.rb"
         requires :phlex
+        description "Flags Phlex views exceeding 15 component calls"
 
         MAX_COMPONENTS = 15
 

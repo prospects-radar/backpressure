@@ -1,4 +1,5 @@
 name: PIIInSystemPrompt
+description: AI check for hardcoded PII or secrets in prompt strings
 category: AI/PromptSafety
 severity: error
 files: "app/ai/**/*.rb"

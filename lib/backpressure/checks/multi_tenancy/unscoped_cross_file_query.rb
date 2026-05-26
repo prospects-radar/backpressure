@@ -8,6 +8,7 @@ module Backpressure
         severity :error
         files "app/services/**/*.rb"
         requires :source
+        description "Flags DB queries without tenant scoping in multi-tenant code"
 
         QUERY_METHODS = /\.(where|find|find_by|all|first|last|count|pluck)\b/
         TENANT_SAFE = /acts_as_tenant|Current\.account|current_account|ActsAsTenant/

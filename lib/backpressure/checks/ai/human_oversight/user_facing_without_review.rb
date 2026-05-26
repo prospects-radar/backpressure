@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/{controllers,views}/**/*.rb"
           requires :source
+          description "Flags AI output rendered to users without moderation"
 
           def check(context)
             return unless context.source.match?(/agent.*result|\.run\b.*response/)

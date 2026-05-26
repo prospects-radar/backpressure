@@ -9,6 +9,7 @@ module Backpressure
           severity :error
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags retry loops around AI calls without attempt limits"
 
           RETRY_PATTERN = /\bretry\b/
           MAX_PATTERN = /max_attempts|max_retries|retry_count|attempts\s*[<>=]/

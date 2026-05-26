@@ -9,6 +9,7 @@ module Backpressure
           severity :info
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags agent calls without trace_id or correlation_id"
 
           def check(context)
             return unless context.source.match?(/\.run\b/)

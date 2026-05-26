@@ -1,4 +1,5 @@
 name: SchemaFieldCoverage
+description: AI check for schema fields not mentioned in the prompt
 category: AI/OutputSafety
 severity: warning
 files: "app/ai/**/*.rb"

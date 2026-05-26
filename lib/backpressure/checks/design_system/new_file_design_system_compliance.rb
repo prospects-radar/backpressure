@@ -11,6 +11,7 @@ module Backpressure
         files "app/{views,components}/glass_morph/**/*.rb"
         requires :source
         ratchet false
+        description "Blocks raw HTML in new GlassMorph files"
 
         RAW_ELEMENTS = RawHTMLRatchet::RAW_ELEMENTS
         PATTERN = RawHTMLRatchet::PATTERN

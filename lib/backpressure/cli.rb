@@ -100,8 +100,14 @@ module Backpressure
         YamlLoader.load_all(bundled_yaml).each { |c| registry.register(c) }
       end
 
+      bundled_checks_real = File.realpath(bundled_checks) rescue nil
+      bundled_yaml_real = File.realpath(bundled_yaml) rescue nil
+
       config.check_paths.each do |path|
         next unless Dir.exist?(path)
+        path_real = File.realpath(path) rescue path
+        next if path_real == bundled_checks_real || path_real == bundled_yaml_real
+
         registry.load_from(path)
         YamlLoader.load_all(path).each { |c| registry.register(c) } if Dir.glob(File.join(path, "**/*.check.yml")).any?
       end
@@ -128,8 +134,10 @@ module Backpressure
     end
 
     def run_list(registry)
-      registry.all.each do |check|
-        puts "#{check.check_name.ljust(40)} #{check.check_category || '-'}"
+      registry.all.sort_by { |c| [c.check_category || "", c.check_name] }.each do |check|
+        line = "#{check.check_name.ljust(40)} #{(check.check_category || '-').ljust(20)}"
+        line += " #{check.check_description}" if check.check_description
+        puts line
       end
     end
 

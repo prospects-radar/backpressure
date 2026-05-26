@@ -9,6 +9,7 @@ module Backpressure
           severity :error
           files "app/**/*.rb"
           requires :ast
+          description "Flags string interpolation in SQL query methods"
 
           QUERY_METHODS = %i[where find_by select joins order group having].freeze
 

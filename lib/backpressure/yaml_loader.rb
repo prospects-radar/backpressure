@@ -20,6 +20,7 @@ module Backpressure
       klass.define_singleton_method(:name) { klass_name }
       klass.define_singleton_method(:check_name) { klass_name }
 
+      klass.description(data["description"]) if data["description"]
       klass.category(data["category"]) if data["category"]
       klass.severity(data["severity"]&.to_sym) if data["severity"]
       klass.files(data["files"]) if data["files"]

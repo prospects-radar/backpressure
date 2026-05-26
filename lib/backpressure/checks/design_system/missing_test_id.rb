@@ -8,6 +8,7 @@ module Backpressure
         severity :warning
         files "app/components/glass_morph/organisms/**/*.rb"
         requires :source, :project
+        description "Flags organisms used in Cucumber but missing tid() test IDs"
 
         TID_PATTERN = /\btid\s*\(/
 

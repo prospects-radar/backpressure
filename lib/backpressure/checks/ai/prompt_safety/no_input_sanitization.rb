@@ -9,6 +9,7 @@ module Backpressure
           severity :error
           files "app/ai/**/*.rb"
           requires :ast
+          description "Flags string interpolation in user-facing prompt methods"
 
           def check(context)
             return unless context.ast

@@ -8,6 +8,7 @@ module Backpressure
         severity :warning
         files "app/{views,components}/glass_morph/**/*.rb"
         requires :phlex, :project
+        description "AI check for inconsistent usage of design system components"
 
         ai_config(
           provider: :test,

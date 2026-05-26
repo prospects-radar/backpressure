@@ -8,6 +8,7 @@ module Backpressure
         severity :warning
         files "app/services/**/*.rb"
         requires :ast, :project
+        description "Flags services calling more than 5 other services"
 
         MAX_DEPENDENCIES = 5
 

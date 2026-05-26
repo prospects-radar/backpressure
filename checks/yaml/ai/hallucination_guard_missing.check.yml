@@ -1,4 +1,5 @@
 name: HallucinationGuardMissing
+description: AI check for agent outputs used without existence validation
 category: AI/OutputSafety
 severity: warning
 files: "app/ai/**/*.rb"

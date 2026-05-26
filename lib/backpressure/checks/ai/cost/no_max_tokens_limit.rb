@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags AI calls without max_tokens parameter"
 
           def check(context)
             return if context.source.match?(/max_tokens/)

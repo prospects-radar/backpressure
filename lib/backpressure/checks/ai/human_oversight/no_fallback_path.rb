@@ -9,6 +9,7 @@ module Backpressure
           severity :warning
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags agent.run calls without rescue or fallback handling"
 
           def check(context)
             return unless context.source.match?(/\.run\b/)

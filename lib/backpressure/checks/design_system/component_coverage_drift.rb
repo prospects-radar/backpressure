@@ -9,6 +9,7 @@ module Backpressure
         files "app/{views,components}/glass_morph/**/*.rb"
         requires :phlex
         ratchet :strict
+        description "Tracks design system coverage percentage per Phlex view"
 
         def check(context)
           skip("No view_template found") unless context.tree

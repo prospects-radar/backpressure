@@ -8,6 +8,7 @@ module Backpressure
         severity :warning
         files "app/components/glass_morph/**/*.rb"
         requires :source, :project
+        description "Flags components defining yield slots that no caller uses"
 
         YIELD_PATTERN = /\byield\b/
 

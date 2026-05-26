@@ -1,4 +1,5 @@
 name: ToolDescriptionQuality
+description: AI check for terse or poorly documented RAAF tool descriptions
 category: RAAF
 severity: info
 files: "app/ai/**/*.rb"

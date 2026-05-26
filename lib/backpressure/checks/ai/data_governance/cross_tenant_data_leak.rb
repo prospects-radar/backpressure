@@ -9,6 +9,7 @@ module Backpressure
           severity :error
           files "app/ai/**/*.rb"
           requires :source
+          description "Flags DB queries in AI code without tenant scoping"
 
           QUERY_PATTERN = /\.where\b|\.find\b|\.find_by\b|\.all\b/
           TENANT_PATTERN = /acts_as_tenant|current_account|Current\.account/
