@@ -1,0 +1,26 @@
+name: NoEdgeCaseTests
+category: AI/Testing
+severity: info
+files: "spec/ai/**/*_spec.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 512
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line: { type: integer }
+        message: { type: string }
+prompt: |
+  Analyze this AI agent spec. Check if it only tests the happy path.
+
+  Flag if missing tests for: malformed LLM output, timeout/error
+  responses, refusal/empty responses, schema validation failures,
+  or boundary conditions.
+
+  Source:
+  {{source}}

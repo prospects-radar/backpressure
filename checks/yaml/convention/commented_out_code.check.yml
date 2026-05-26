@@ -1,0 +1,29 @@
+name: CommentedOutCode
+category: Convention
+severity: warning
+files: "**/*.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 1024
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line: { type: integer }
+        message: { type: string }
+prompt: |
+  Scan this Ruby file for commented-out code blocks.
+
+  Flag blocks of 2+ consecutive lines that are commented-out Ruby code
+  (not documentation comments). Look for commented-out method definitions,
+  class declarations, assignments, control flow, or method calls.
+
+  Do NOT flag: legitimate documentation, TODO/FIXME comments, or
+  single-line disable annotations.
+
+  Source:
+  {{source}}

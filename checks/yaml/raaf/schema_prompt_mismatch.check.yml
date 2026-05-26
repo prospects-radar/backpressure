@@ -1,0 +1,26 @@
+name: SchemaPromptMismatch
+category: RAAF
+severity: warning
+files: "app/ai/**/*.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 512
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line: { type: integer }
+        message: { type: string }
+prompt: |
+  Compare the output schema with the system/user prompt in this agent.
+
+  Flag: fields in the schema that the prompt never asks for,
+  information the prompt requests but no schema field captures,
+  or type mismatches between what the prompt describes and schema types.
+
+  Source:
+  {{source}}

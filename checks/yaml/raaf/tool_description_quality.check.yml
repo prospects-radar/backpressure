@@ -1,0 +1,26 @@
+name: ToolDescriptionQuality
+category: RAAF
+severity: info
+files: "app/ai/**/*.rb"
+requires:
+  - source
+ai:
+  provider: test
+  temperature: 0
+  max_tokens: 512
+  schema:
+    type: array
+    items:
+      type: object
+      properties:
+        line: { type: integer }
+        message: { type: string }
+prompt: |
+  Review tool descriptions in this RAAF agent.
+
+  Flag descriptions that are: too terse (<10 words), missing parameter
+  documentation, ambiguous about when to use the tool, or missing
+  example inputs/outputs.
+
+  Source:
+  {{source}}
