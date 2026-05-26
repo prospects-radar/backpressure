@@ -10,7 +10,7 @@ module Backpressure
       options = {
         command: nil, only: nil, format: nil, paths: [],
         update_baseline: false, cache: true, ai_fix: false,
-        interactive: false, dry_run: false
+        interactive: false, dry_run: false, verbose: false
       }
 
       command = argv.shift if argv.first && !argv.first.start_with?("-")
@@ -45,6 +45,10 @@ module Backpressure
 
         opts.on("--dry-run", "Show what would be fixed without applying") do
           options[:dry_run] = true
+        end
+
+        opts.on("--verbose", "Show files and checks as they run") do
+          options[:verbose] = true
         end
 
         opts.on("-h", "--help", "Show help") do
@@ -122,9 +126,18 @@ module Backpressure
       end
     end
 
+    def build_reporter
+      return nil if @options[:verbose]
+      return nil if @options[:format] == :json
+      return nil unless $stderr.respond_to?(:tty?) && $stderr.tty?
+
+      ProgressReporter.new
+    end
+
     def run_check(config, registry)
       files = resolve_files(config)
-      runner = Runner.new(config: config, registry: registry)
+      reporter = build_reporter
+      runner = Runner.new(config: config, registry: registry, verbose: @options[:verbose], reporter: reporter)
       result = runner.run(files: files, only: @options[:only])
 
       formatter = resolve_formatter(config)

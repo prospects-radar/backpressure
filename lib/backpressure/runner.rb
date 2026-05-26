@@ -12,10 +12,12 @@ module Backpressure
       end
     end
 
-    def initialize(config:, registry:, project_index: nil)
+    def initialize(config:, registry:, project_index: nil, verbose: false, reporter: nil)
       @config = config
       @registry = registry
       @project_index = project_index
+      @verbose = verbose
+      @reporter = reporter
     end
 
     def run(files:, only: nil)
@@ -24,25 +26,41 @@ module Backpressure
 
       build_project_index(files) if needs_project_index?(only)
 
+      scannable = files.select { |f| !resolve_checks(f, only: only).empty? }
+      @reporter&.start(total_files: scannable.size)
+
       files.each do |file_path|
         checks = resolve_checks(file_path, only: only)
+        next if checks.empty?
+
+        $stderr.puts "  #{file_path} (#{checks.size} check#{checks.size == 1 ? '' : 's'})" if @verbose
+        @reporter&.file_start(file_path, checks.size)
+
         source = File.read(file_path, encoding: "utf-8")
         next unless source.valid_encoding?
 
         checks.each do |check_class|
+          $stderr.puts "    -> #{check_class.check_name}" if @verbose
+          @reporter&.check_start(check_class.check_name)
+
           context = build_context(check_class, source: source, file_path: file_path)
           instance = check_class.new
           instance.run(context)
 
           if instance.skipped?
+            $stderr.puts "       skipped: #{instance.skip_reason}" if @verbose
             all_skipped << { check: check_class.check_name, file: file_path, reason: instance.skip_reason }
+            @reporter&.check_done(0)
           else
             filtered = filter_skip_annotations(instance.violations, source)
+            $stderr.puts "       #{filtered.size} violation#{filtered.size == 1 ? '' : 's'}" if @verbose && filtered.any?
             all_violations.concat(filtered)
+            @reporter&.check_done(filtered.size)
           end
         end
       end
 
+      @reporter&.finish
       Result.new(violations: all_violations.sort, skipped: all_skipped)
     end
 

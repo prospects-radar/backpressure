@@ -16,6 +16,7 @@ module Backpressure
   autoload :Cache, "backpressure/cache"
   autoload :Correction, "backpressure/correction"
   autoload :AiCheck, "backpressure/ai_check"
+  autoload :ProgressReporter, "backpressure/progress_reporter"
   autoload :YamlLoader, "backpressure/yaml_loader"
   autoload :ProjectIndex, "backpressure/project_index"
   autoload :PluginDSL, "backpressure/plugin"
@@ -56,6 +57,7 @@ module Backpressure
     end
 
     module Providers
+      autoload :OpenAiCompatible, "backpressure/ai/providers/openai_compatible"
     end
   end
 
