@@ -23,7 +23,7 @@ module Backpressure
             dep_entry = services.find { |c| c.name == dep_name }
             next unless dep_entry
 
-            reverse_deps = find_service_deps_in_file(dep_entry.file, service_names)
+            reverse_deps = find_service_deps_in_file(dep_entry.file, service_names, index)
             next unless reverse_deps.include?(this_class.name)
 
             node = OpenStruct.new(loc: OpenStruct.new(line: 1, column: 0))
@@ -51,10 +51,11 @@ module Backpressure
           deps
         end
 
-        def find_service_deps_in_file(file_path, service_names)
-          return Set.new unless File.exist?(file_path)
+        def find_service_deps_in_file(file_path, service_names, index = nil)
+          source = index&.source_for(file_path)
+          source ||= (File.read(file_path, encoding: "utf-8") if File.exist?(file_path))
+          return Set.new unless source
 
-          source = File.read(file_path)
           processed = RuboCop::AST::ProcessedSource.new(source, RUBY_VERSION.to_f, file_path)
           return Set.new unless processed.ast
 

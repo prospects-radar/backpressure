@@ -19,9 +19,11 @@ module Backpressure
           index = context.project_index
           referenced_in_cucumber = index.files.any? do |f|
             next unless f.end_with?("_steps.rb") || f.end_with?(".feature")
-            next unless File.exist?(f)
 
-            File.read(f).include?(component_name)
+            source = index.source_for(f)
+            next unless source
+
+            source.include?(component_name)
           end
 
           return unless referenced_in_cucumber

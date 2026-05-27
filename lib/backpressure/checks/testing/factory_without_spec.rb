@@ -20,9 +20,11 @@ module Backpressure
             factory_name = match[1]
             referenced = context.project_index.files.any? do |f|
               next unless f.match?(%r{spec/.*_spec\.rb\z})
-              next unless File.exist?(f)
 
-              File.read(f).include?(factory_name)
+              source = context.project_index.source_for(f)
+              next unless source
+
+              source.include?(factory_name)
             end
 
             next if referenced

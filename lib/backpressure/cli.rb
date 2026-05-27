@@ -137,7 +137,8 @@ module Backpressure
     def run_check(config, registry)
       files = resolve_files(config)
       reporter = build_reporter
-      runner = Runner.new(config: config, registry: registry, verbose: @options[:verbose], reporter: reporter)
+      cache = Cache.new(dir: config.cache_dir, enabled: @options[:cache] && config.cache_enabled)
+      runner = Runner.new(config: config, registry: registry, verbose: @options[:verbose], reporter: reporter, cache: cache)
       result = runner.run(files: files, only: @options[:only])
 
       formatter = resolve_formatter(config)
@@ -169,9 +170,30 @@ module Backpressure
       puts "Created backpressure.yml"
     end
 
-    def run_cache(_config)
-      $stderr.puts "cache command not yet implemented"
-      exit 1
+    def run_cache(config)
+      sub = @options[:paths].first
+      cache = Cache.new(dir: config.cache_dir, enabled: config.cache_enabled)
+      case sub
+      when "clear"
+        cache.clear
+        puts "Cache cleared: #{config.cache_dir}"
+      when "stats"
+        s = cache.stats
+        puts "Enabled:  #{s[:enabled]}"
+        puts "Dir:      #{s[:dir]}"
+        puts "Entries:  #{s[:entries]}"
+        puts "Size:     #{s[:total_bytes]} bytes"
+      when "show"
+        entries = cache.show
+        if entries.empty?
+          puts "(empty)"
+        else
+          entries.each { |e| puts "#{e[:check].ljust(40)} #{e[:entries]} entries" }
+        end
+      else
+        $stderr.puts "Usage: backpressure cache <clear|stats|show>"
+        exit 1
+      end
     end
 
     def resolve_files(config)

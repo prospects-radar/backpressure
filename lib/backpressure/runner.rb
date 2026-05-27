@@ -12,12 +12,13 @@ module Backpressure
       end
     end
 
-    def initialize(config:, registry:, project_index: nil, verbose: false, reporter: nil)
+    def initialize(config:, registry:, project_index: nil, verbose: false, reporter: nil, cache: nil)
       @config = config
       @registry = registry
       @project_index = project_index
       @verbose = verbose
       @reporter = reporter
+      @cache = cache
     end
 
     def run(files:, only: nil)
@@ -43,6 +44,21 @@ module Backpressure
           $stderr.puts "    -> #{check_class.check_name}" if @verbose
           @reporter&.check_start(check_class.check_name)
 
+          cached = @cache&.fetch(
+            check_name: check_class.check_name,
+            file_path: file_path,
+            file_content: source,
+            check_version: VERSION
+          )
+
+          if cached
+            filtered = cached.map { |h| Violation.from_cache_hash(h) }
+            $stderr.puts "       cached (#{filtered.size})" if @verbose
+            all_violations.concat(filtered)
+            @reporter&.check_done(filtered.size)
+            next
+          end
+
           context = build_context(check_class, source: source, file_path: file_path)
           instance = check_class.new
           instance.run(context)
@@ -54,6 +70,13 @@ module Backpressure
           else
             filtered = filter_skip_annotations(instance.violations, source)
             $stderr.puts "       #{filtered.size} violation#{filtered.size == 1 ? '' : 's'}" if @verbose && filtered.any?
+            @cache&.store(
+              check_name: check_class.check_name,
+              file_path: file_path,
+              file_content: source,
+              check_version: VERSION,
+              result: filtered.map(&:to_cache_hash)
+            )
             all_violations.concat(filtered)
             @reporter&.check_done(filtered.size)
           end

@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
+original_verbose = $VERBOSE
+$VERBOSE = nil
 require "parser/current"
+$VERBOSE = original_verbose
 require "set"
 
 module Backpressure

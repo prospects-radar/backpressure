@@ -19,6 +19,24 @@ module Backpressure
       @source_node = source_node
     end
 
+    def to_cache_hash
+      {
+        "check_name" => check_name, "category" => category,
+        "severity" => severity.to_s, "message" => message,
+        "file" => file, "line" => line, "column" => column,
+        "auto_correctable" => auto_correctable
+      }
+    end
+
+    def self.from_cache_hash(h)
+      new(
+        check_name: h["check_name"], category: h["category"],
+        severity: h["severity"].to_sym, message: h["message"],
+        file: h["file"], line: h["line"], column: h["column"],
+        auto_correctable: h["auto_correctable"]
+      )
+    end
+
     def location
       "#{file}:#{line}:#{column}"
     end

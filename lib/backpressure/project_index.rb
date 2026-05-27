@@ -8,15 +8,24 @@ module Backpressure
 
     attr_reader :classes, :files
 
-    def initialize(classes:, files:)
+    def initialize(classes:, files:, const_refs: nil, file_sources: nil)
       @classes = classes
       @files = files
+      @const_refs = const_refs
+      @file_sources = file_sources
     end
 
     def self.build(file_paths)
       all_classes = []
+      const_refs = Hash.new { |h, k| h[k] = [] }
+      file_sources = {}
+
       file_paths.each do |path|
-        source = File.read(path)
+        source = File.read(path, encoding: "utf-8")
+        next unless source.valid_encoding?
+
+        file_sources[path] = source
+
         processed = RuboCop::AST::ProcessedSource.new(source, RUBY_VERSION.to_f, path)
         next unless processed.ast
 
@@ -30,9 +39,23 @@ module Backpressure
             superclass_name: superclass
           )
         end
+
+        processed.ast.each_node(:const) do |node|
+          const_refs[node.source] << path
+        end
       end
 
-      new(classes: all_classes, files: file_paths)
+      const_refs.each_value(&:uniq!)
+      new(classes: all_classes, files: file_paths, const_refs: const_refs, file_sources: file_sources)
+    end
+
+    def source_for(path)
+      if @file_sources
+        @file_sources[path]
+      elsif File.exist?(path)
+        source = File.read(path, encoding: "utf-8")
+        source.valid_encoding? ? source : nil
+      end
     end
 
     def classes_in(glob)
@@ -44,11 +67,22 @@ module Backpressure
     end
 
     def references_to(target_classes)
+      if @const_refs
+        refs = []
+        target_classes.each do |target|
+          (@const_refs[target.name] || []).each do |path|
+            refs << OpenStruct.new(file: path, node: nil, target: target)
+          end
+        end
+        return refs
+      end
+
       target_names = target_classes.map(&:name)
       refs = []
-
       files.each do |path|
-        source = File.read(path)
+        next unless File.exist?(path)
+        source = File.read(path, encoding: "utf-8")
+        next unless source.valid_encoding?
         processed = RuboCop::AST::ProcessedSource.new(source, RUBY_VERSION.to_f, path)
         next unless processed.ast
 
@@ -60,7 +94,6 @@ module Backpressure
           end
         end
       end
-
       refs
     end
   end

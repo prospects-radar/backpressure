@@ -18,13 +18,17 @@ module Backpressure
           index = context.project_index
           component_name = File.basename(context.file_path, ".rb").split("_").map(&:capitalize).join
 
+          escaped = Regexp.escape(component_name)
+          block_do = /#{escaped}\s*[\(].*\bdo\b/m
+          block_brace = /#{escaped}\s*\{/
+
           has_block_caller = index.files.any? do |file|
             next if file == context.file_path
-            next unless File.exist?(file)
 
-            source = File.read(file)
-            escaped = Regexp.escape(component_name)
-            source.match?(/#{escaped}\s*[\(].*\bdo\b/m) || source.match?(/#{escaped}\s*\{/)
+            source = index.source_for(file)
+            next unless source
+
+            source.match?(block_do) || source.match?(block_brace)
           end
 
           return if has_block_caller
